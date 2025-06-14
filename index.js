@@ -1,64 +1,89 @@
+let discos = [];
+
+fetch("discos.json")
+  .then((response) => response.json())
+  .then((json) => {
+    discos = json.map(disco => {
+      const pistas = disco.pistas.map(
+        (pistas) => new Pista(pistas.nombre, pistas.duracion)
+      );
+      return new Disco(
+        disco.nombre,
+        disco.artista,
+        disco.id,
+        disco.portada,
+        pistas.sort((a, b) => a.nombre.localeCompare(b.nombre)) //Ordeno las pistas alfabeticamente
+      );
+    });
+    discos.sort((primerDisco, ultimoDisco) => primerDisco.id - ultimoDisco.id); //ordeno los discos  de manera acendente 
+
+  });
+
+//-----------------------------------------------------------------------------------------------
+
+function mostrarDiscos() {
+
+    // Mostrar en la parte superior la canctidad total de discos y el disco con mayor duracion
+  let discoConMayorDuracion = discos[0];
+  let duracionMaxima = discos[0].duracionTotalPistas();
+
+  for (let i = 1; i < discos.length; i++) {
+    const duracionActual = discos[i].duracionTotalPistas();
+    if (duracionActual > duracionMaxima) {
+      duracionMaxima = duracionActual;
+      discoConMayorDuracion = discos[i];
+    }
+
+    const info = document.querySelector("#informacion");
+    info.innerHTML = ` <h2>Mis Discos</h2>
+     <ul>
+              <li>Cantidad de discos: <span class="numero"> ${discos.length}</span></li>
+              <li>
+                Disco de mayor duración: <span class="resaltar">${discoConMayorDuracion.nombre}</span>
+              </li>
+              <li>Duración: <span class="numero">${Pista.formatearDuracion(duracionMaxima)}</span></li>
+    </ul>`;
+  const divBiblioteca = document.querySelector("#discos");
+  divBiblioteca.innerHTML = "";
+  discos.forEach((disco) => (divBiblioteca.innerHTML += disco.toHTML()));
+
+
+  }
+
+}
+
+function cargarNuevoDisco() {
+
+  const nombre = Disco.pedirNombre();
+  const artista = Disco.pedirArtista();
+  const id = Disco.pedirId();
+  const portada = Disco.pedirPortada();
+  const pistas = Disco.pedirPistas();
+
+  const nuevoDisco = (new Disco(nombre, artista, id, portada, pistas));
+  discos.push(nuevoDisco);
+  discos.sort((x, y) => x.id - y.id);
+
+  alert(`El disco ${nombre.toLocaleUpperCase()} fue agregado con exito`)
+  mostrarDiscos();
+
+}
+
+function buscarDisco() {
+  const dato = validarPromp("Ingrese el ID o nombre del disco");
+
+  const discoEncontrado = discos.find(disco =>
+    disco.id == dato || disco.nombre.toLowerCase() === dato.toLowerCase()
+  );
+
+  if (discoEncontrado) {
+    const divBiblioteca = document.querySelector("#discos");
+    divBiblioteca.innerHTML = discoEncontrado.toHTML();
+  } else {
+    alert("El disco no existe");
+  }
+}
 
 
 
 
-document.addEventListener("DOMContentLoaded" , () =>  { //Usarlo en caso de tener un script que depende de que la pagina se haya cargado del todo
-
-
-
-
-document.querySelector("button").addEventListener("click", () => {//--------> addEventListener es un "escuchador" de eventos, y es vincular una funcion con un evento.
-    // Funcion que se llama cuando se clickea el boton
- 
-    //Busco el input
-    const input = document.querySelector("input");
-    const compra = input.value; //---> Lo que escribo en la barra de busqueda, se guarda en la propiedad VALUE
-//Limpio el input
-input.value ="";
-
-let li = document.createElement("li"); //Lo que me permite es que yo le digo la etiqueta que quiero "li", me crea un objeto en el html que represanta un li.
-li.innerText = compra;
-li.setAttribute("class" , "");//-----> Permite que cualquier atributo de u elemento de html , se lo opuede setear con esto
-
-let btn = DocumentTimeline.createElement("button");
-btn.classList.add("btn");
-btn.classList.add("btn-danger");
-btn.innerText = "Borrar";
-btn.addEventListener("click", (e) =>{
-// Guardo el culpable del evento (button que se clickeo)
-   const target = e.target;
-   target.parentElement.remove();
-
-
-
-});
-
-li.append(btn);
-
-document.querySelector("ul").append(li);
-
-//append, similar al (.push) de los arrays, lo que hace es, agregar al final, dentro de un elemento de html, lo agrega al fondo
-
-
-
-
-
-});
-
-
-}); 
-
-
-
-//--------------------------------------------------------------/
-/*
-
-<ul class="list-group">
-  <li class="list-group-item">An item</li>
-  <li class="list-group-item">A second item</li>
-  <li class="list-group-item">A third item</li>
-  <li class="list-group-item">A fourth item</li>
-  <li class="list-group-item">And a fifth one</li>
-</ul>
-
-*/
